@@ -61,7 +61,7 @@ df_titanic %>%
 ```
 
 **Observations**:
-- Variable: Class, sex, Age, Survived, n
+- Variable: Class, Sex, Age, Survived, n
 
 
 __q2__ Skim the [Wikipedia article](https://en.wikipedia.org/wiki/RMS_Titanic) on the RMS Titanic, and look for a total count of passengers. Compare against the total computed below. Are there any differences? Are those differences large or small? What might account for those differences?
@@ -74,7 +74,7 @@ df_titanic %>% summarize(total = sum(n))
 
 **Observations**:
 
-- Wikipedia page say an estimate of 2224 people were aboard. This is slightly more than the number reported above. 
+- Wikipedia page say an estimate of 2224 people were aboard. This is slightly more than the number reported above. It seems like there was uncertainty in the numbers of the overall passenger list (people who canceled their trip last minute and/or traveled under aliases). 
 
 __q3__ Create a plot showing the count of passengers who *did* survive, along with aesthetics for `Class` and `Sex`. Document your observations below.
 
@@ -82,11 +82,17 @@ __q3__ Create a plot showing the count of passengers who *did* survive, along wi
 
 ```{r q3-task}
 ## TASK: Visualize counts against `Class` and `Sex`
+df_titanic %>% 
+  filter(Survived == "Yes") %>% 
+  ggplot() +  #Started
+    geom_point(aes(x = Class, y = n, color = Sex))
+    # geom_col(aes(x = Class, y = n, color = Sex))
+
 ```
 
 **Observations**:
 
-- Write your observations here
+- In each most of the classes, more females survived than males. It's curious that the 3rd class has almost the same number of females and males that survived. It's also fascinating that more male crew members survived than women. I wonder why. Where there more on board?
 
 # Deeper Look
 <!-- -------------------------------------------------- -->
@@ -112,22 +118,35 @@ df_prop
 __q4__ Replicate your visual from q3, but display `Prop` in place of `n`. Document your observations, and note any new/different observations you make in comparison with q3.
 
 ```{r q4-task}
+df_prop %>% 
+  filter(Survived == "Yes" & !is.na(Prop)) %>%
+  ggplot() +  #Started
+    geom_col(aes(x = Class, y = Prop)) +
+    facet_grid(cols = vars(Sex))
 ```
 
 **Observations**:
 
-- Write your observations here.
+- Proportionally, the figure above suggests that the higher the class, the most likely to survived. In every class, more women proportionally survived than males. However, I wonder about the 1st and second class males having a higher survival rate than the women in 3rd class and crew.
 
 __q5__ Create a plot showing the group-proportion of passengers who *did* survive, along with aesthetics for `Class`, `Sex`, *and* `Age`. Document your observations below.
 
 *Hint*: Don't forget that you can use `facet_grid` to help consider additional variables!
 
 ```{r q5-task}
+df_prop %>% 
+  filter(Survived == "Yes" & !is.na(Prop)) %>%
+  ggplot() +  #Started
+    geom_col(stats = "Identity", aes(x = Class, y = Prop)) +
+    facet_grid(rows = vars(Sex), cols = vars(Age))  
 ```
 
 **Observations**:
 
-- Write your observations here.
+- Adult male passengers seem significantly less likely to survive. The affect of the 1st and 2nd class men having a higher survival rate seems to be only due to the 
+- Why did children in the 3rd class have a much lower survival rate than 1st and 2nd class. Women and children first... to an extent...
+- Were there enough life boats to actually save all of the women and children? Could the life boats have saved more people?
+- Why more crew men survived than 2nd and 3rd class men?
 
 # Notes
 <!-- -------------------------------------------------- -->

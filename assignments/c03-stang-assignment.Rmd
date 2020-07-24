@@ -71,9 +71,18 @@ __q1__ Tidy `df_stang` to produce `df_stang_long`. You should have column names 
 ```{r q1-task}
 ## TASK: Tidy `df_stang`
 df_stang_long <-
-  df_stang
+  df_stang %>% 
+    pivot_longer(
+      names_to = c(".value", "angle"),
+      names_sep = "_",
+      names_transform = list(angle = as.integer), 
+      cols = E_00:mu_90,
+      values_drop_na = TRUE,
+    ) %>% 
+  filter(E > 0) #Is there a way to filter this inside the pivot?
 
-df_stang_long
+
+df_stang_long 
 ```
 
 Use the following tests to check your work.
@@ -107,20 +116,20 @@ __q2__ Perform a basic EDA on the aluminum data *without visualization*. Use you
 
 ```{r q2-task}
 ##
+glimpse(df_stang_long)
+summary(df_stang_long)
+unique(df_stang_long$alloy)
+unique(df_stang_long$thick)
 ```
 
 **Observations**:
 
-- Is there "one true value" for the material properties of Aluminum?
-- How many aluminum alloys were tested? How do you know?
-- What angles were tested?
-- What thicknesses were tested?
-- (Write your own question here)
-- No; we see a variety of values for `E` and `mu`.
-- Just one alloy: al_24st
-- Angles: 0, 45, 90 (degrees)
-- Thicknesses: 0.022, 0.032, 0.064, 0.081 (in)
-- I'm curious if the properties `E, mu` vary with thickness
+- Is there "one true value" for the material properties of Aluminum? No, there is not one true value for the material properties of Aluminum. The measurements results vary.
+- How many aluminum alloys were tested? How do you know? Only one type of aluminum alloy was tested. It is "al_24st". I confirmed that it is only "al_24st" with the following command "unique(df_stang_long$alloy)"
+- What angles were tested? 0, 45, and 90 degrees.
+- What thicknesses were tested? Four thicknesses: 0.022, 0.032, 0.064, & 0.081.
+- My own question: I am curious if the porperties of `E, mu` vary more with angle or thickness.
+
 
 ## Visualize
 <!-- ------------------------- -->
@@ -129,11 +138,33 @@ __q3__ Create a visualization to investigate your question from q1 above. Can yo
 
 ```{r q3-task}
 ## TASK: Investigate your question from q1 here
+
+df_stang_long %>%
+  mutate(cut_thick = cut_width(thick, width = 0.02)) %>%
+  mutate(cut_angle = cut_interval(angle, n = 3)) %>% 
+  ggplot(aes(x = mu, y = E, group = cut_angle, color = cut_angle, shape = cut_thick)) + #Can easily change from mu to E
+  geom_point() 
+#I SWEAR I didn't see the graph below before making this plot.
+
+  ##Also, WORKING
+# df_stang_long %>%
+#   mutate(cut_thick = cut_width(thick, width = 0.02)) %>%
+#   ggplot(aes(x = cut_thick, y = mu)) + #Can easily change from mu to E
+#   geom_boxplot() +
+#   facet_wrap(~angle)
+
+  # geom_point(mapping = aes(x = E, y = mu, color = angle))
+df_stang_long %>% 
+  group_by(thick) %>% 
+  # glimpse()
+  ggplot() +
+  geom_point(mapping = aes(x = angle, y = E, color = thick))
+
 ```
 
 **Observations**:
 
-- (Address your question from q1 here)
+- I see the greatest differentiation in the dots above by thickness. The thicker pieces of metal, tend to have lower values.
 
 __q4__ Consider the following statement:
 
@@ -145,7 +176,7 @@ Note that the "amount of material" would vary with the thickness of a tested pla
 ## NOTE: No need to change; run this chunk
 df_stang_long %>%
 
-  ggplot(aes(mu, E, color = as_factor(thick))) +
+  ggplot(aes(mu, E, color = as_factor(thick))) + #Does "as_factor" convert values into groups (if their are multiple values that are the same?)
   geom_point(size = 3) +
   theme_minimal()
 ```
@@ -153,6 +184,7 @@ df_stang_long %>%
 **Observations**:
 
 - Does this graph support or contradict the claim above?
+- No, I think the graph above does not necessarily support the claim above. The thicker peices of metal seem to have different E and Mu values.
 
 # References
 <!-- -------------------------------------------------- -->

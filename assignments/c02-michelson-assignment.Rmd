@@ -1,7 +1,7 @@
 ---
 title: "Michelson Speed-of-light Measurements"
-author: "(Your name here)"
-date: 2020-
+author: "Kelly Brennan"
+date: 2020-07-17
 output:
   github_document:
     toc: true
@@ -102,7 +102,16 @@ Michelson *exactly*; why might this be?
 
 ```{r q1-task}
 ## TODO: Compute summaries
-df_q1 <- NA
+df_q1 <- 
+  df_michelson %>%
+    group_by(Distinctness) %>% 
+    summarize(
+      n = n(),
+      meanVelocity = round(mean(Velocity), -1)
+    ) %>% #I've tried count multiple times, but it gives an error.
+    glimpse()
+  
+
 df_q1 %>%
   arrange(desc(Distinctness)) %>%
   knitr::kable()
@@ -123,8 +132,9 @@ __q2__ Create a new variable `VelocityVacuum` with the $+92$ km/s adjustment to
 `Velocity`. Assign this new dataframe to `df_q2`.
 
 ```{r q2-task}
-## TODO: Adjust the data, assign to df_q2
-df_q2 <- NA
+df_q2 <- 
+  df_michelson %>% 
+    mutate(VelocityVacuum = Velocity + 92)
 
 df_q2
 ```
@@ -154,10 +164,24 @@ less than the true error?
 
 ```{r q3-task}
 ## TODO: Compare Michelson's estimate and error against the true value
-## Your code here!
+
+# act_error <-
+#   df_q2 %>% 
+#   summarise(mean = round(mean(VelocityVacuum), -1)) %>% 
+#   mutate(abs(. - LIGHTSPEED_VACUUM)) %>% 
+# 
+# 
+# offset <- act_error - LIGHTSPEED_PM %>% 
+#   print()
+
+LIGHTSPEED_MICHELSON - LIGHTSPEED_VACUUM
+
+
+  
 ```
 
 **Observations**:
+- He was further away from the true value than he expected to be.
 
 __q4__ You have access to a few other variables. Construct a few visualizations
 of `VelocityVacuum` against these other factors. Are there other patterns in the

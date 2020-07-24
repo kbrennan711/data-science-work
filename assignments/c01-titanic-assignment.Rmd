@@ -143,7 +143,7 @@ df_prop %>%
 
 **Observations**:
 
-- Adult male passengers seem significantly less likely to survive. The affect of the 1st and 2nd class men having a higher survival rate seems to be only due to the 
+- Adult male passengers seem significantly less likely to survive. The affect of the 1st and 2nd class men having a higher survival rate seems to be only due to the children.
 - Why did children in the 3rd class have a much lower survival rate than 1st and 2nd class. Women and children first... to an extent...
 - Were there enough life boats to actually save all of the women and children? Could the life boats have saved more people?
 - Why more crew men survived than 2nd and 3rd class men?

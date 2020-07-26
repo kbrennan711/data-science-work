@@ -1,7 +1,7 @@
 ---
 title: "Gapminder"
-author: "(Your name here)"
-date: 2020-
+author: "Kelly Brennan"
+date: 2020-07-24
 output:
   github_document:
     toc: true
@@ -57,6 +57,8 @@ dataset?
 
 ```{r q0-task}
 ## TASK: Do your "first checks" here!
+glimpse(gapminder)
+summary(gapminder)
 ```
 
 **Observations**:
@@ -67,8 +69,8 @@ __q1__ Determine the most and least recent years in the `gapminder` dataset.
 
 ```{r q1-task}
 ## TASK: Find the largest and smallest values of `year` in `gapminder`
-year_max <- NA_real_
-year_min <- NA_real_
+year_max <- max(gapminder$year)
+year_min <- min(gapminder$year)
 ```
 
 Use the following test to check your work.
@@ -88,15 +90,27 @@ You may encounter difficulties in visualizing these data; if so document your ch
 
 ```{r q2-task}
 ## TASK: Create a visual of gdpPercap vs continent
+year1 <- filter(gapminder, year == year_min)
+
+top_three <- top_n(year1, 3, gdpPercap)
+  
+ggplot(data = year1, mapping = aes(x = continent, y = gdpPercap)) + 
+  geom_violin() +
+  # geom_label(mapping = aes(label = country)) +
+  coord_trans(y = "log") +
+  geom_label(data= top_three, aes(label = country))
+  
+
 ```
 
 **Observations**:
 
-- Write your observations here
+- In 1952, Kuwait has the largest GDP by FAR. 
 
 **Difficulties & Approaches**:
 
-- Write your challenges and your approach to solving them
+- When I first plotting the data point(), I could hardly see any differences between points, let alone distiinguish which countries were associated with the points.
+- I tried jitter to separate the points, and that worked well. I also decided to plot on a log scale to separate the points better. 
 
 __q3__ You should have found at least three outliers in q2. Identify those outliers (figure out which countries they are).
 
@@ -104,11 +118,17 @@ __q3__ You should have found at least three outliers in q2. Identify those outli
 
 ```{r q3-task}
 ## TASK: Identify the outliers from q2
+ggplot(data = year1, mapping = aes(x = continent, y = gdpPercap)) + 
+  geom_boxplot() +
+  # geom_label(mapping = aes(label = country)) +
+  coord_trans(y = "log") + 
+  geom_label(data = top_three, aes(label = country))
 ```
 
 **Observations**:
 
 - Identify the outlier countries from q2
+- Kuwait, because of oil?
 
 __q4__ Create a plot similar to yours from q2 studying both `year_min` and `year_max`. Find a way to highlight the outliers from q3 on your plot. Compare the patterns between `year_min` and `year_max`.
 
@@ -116,6 +136,15 @@ __q4__ Create a plot similar to yours from q2 studying both `year_min` and `year
 
 ```{r q4-task}
 ## TASK: Create a visual of gdpPercap vs continent
+year2007 <- filter(gapminder, year == year_max)
+
+top_three <- top_n(year2007, 3, gdpPercap)
+  
+ggplot(data = year2007, mapping = aes(x = continent, y = gdpPercap)) + 
+  geom_boxplot() +
+  # geom_label(mapping = aes(label = country)) +
+  # coord_trans(y = "log") +
+  geom_text(data= top_three, aes(label = country))
 ```
 
 **Observations**:
@@ -131,15 +160,49 @@ __q5__ Create *at least* three new figures below. With each figure, try to pose 
 
 ```{r q5-task1}
 ## TASK: Your first graph
+
+gapminder %>% 
+  group_by(continent, year) %>% 
+  summarize(meanContLE = mean(gdpPercap)) %>% 
+  glimpse() %>% 
+  ggplot(mapping = aes(x = year, y = meanContLE, color = continent)) +
+  geom_point() +
+  # ggplot(data = gapminder, aes(x = year, y = gdpPercap)) +
+  # geom_line(color = continent)
+  geom_smooth()
+
 ```
 
 
 ```{r q5-task2}
 ## TASK: Your second graph
+gapminder %>% 
+  group_by(continent, year) %>% 
+  summarize(meanContGdp = mean(lifeExp)) %>% 
+  glimpse() %>% 
+  ggplot(mapping = aes(x = year, y = meanContGdp, color = continent)) +
+  geom_point() +
+  # ggplot(data = gapminder, aes(x = year, y = gdpPercap)) +
+  # geom_line(color = continent)
+  geom_smooth()
+
+# gapminder %>% 
+#   ggplot() + 
+#   geom_point(mapping = aes(x = year, y = gdpPercap)) +
+#   facet_wrap(~ continent)
 ```
 
 
 ```{r q5-task3}
 ## TASK: Your third graph
+gapminder %>% 
+  group_by(continent, year) %>% 
+  summarize(mean_cont_gdp = mean(gdpPercap), mean_cont_lifeexp = mean(lifeExp)) %>% 
+  ggplot(mapping = aes(x = mean_cont_gdp, y = mean_cont_lifeexp, color = continent)) +
+  geom_point() 
+  # ggplot(data = gapminder, aes(x = year, y = gdpPercap)) +
+  # geom_line(color = continent)
+  # geom_smooth()
+
 ```
 

@@ -1,7 +1,7 @@
 ---
 title: "Antibiotics"
-author: "(Your name here)"
-date: 2020-
+author: "Kelly Brennan"
+date: 2020-07-28
 output:
   github_document:
     toc: true
@@ -73,12 +73,34 @@ __q1__ Create a visualization of `df_antibiotics` that helps you to compare the 
 
 ```{r q1-task}
 ## TASK: Create your visualization
+
+# (1) Organizing the data, so that the anitibotic is a variable in the dataset
+df_mic <- 
+  df_antibiotics %>% 
+    pivot_longer(
+      names_to = "antibiotic",
+      values_to = "mic",    cols = penicillin:neomycin, 
+    )
+# print(df_longer)
+df_human <- df_mic %>% filter(mic <= 0.01)
+
+# (2) Plot
+ggplot(data = df_mic, aes(x = bacteria, y = mic)) +
+  geom_point(aes(color = antibiotic)) + 
+  geom_point(data = df_human, shape = 3) +
+  coord_flip() +
+  scale_y_log10()+
+  geom_vline(xintercept = 0.01, color = "black") #Why isn't this working?
+  
 ```
 
 **Observations**:
 
 - Record your observations here
 - Can you make any broad statements about antibiotic effectiveness?
+- It's rather surprising that the three anitbiotics are not more effective against the bacteria. In creating this graph, I anticipated that most of them would be effective, but am proven wrong.
+- Of the three antibiotics, penicillin is effective against the most different types of bacteria. Perhaps that is not surprising because it's the only anitbiotic that I've heard of before.
+- I am surprised that streptomycin is only effective against Baccilus anthracis. I wonder why it is "useful" if all of the other antibiotics are effecvtive for the bacteria too. In a clinical setting, maybe it would be 'more' effective to use penicillin (but a lot of people are alergic).
 
 ## Purpose: Categorize Bacteria
 <!-- ------------------------- -->
@@ -89,11 +111,46 @@ __q2__ Create a visualization of `df_antibiotics` that helps you to categorize b
 
 ```{r q2-task}
 ## TASK: Create your visualization
+# (1) Organizing the data more and making it tidy
+df_genus <- 
+  df_mic %>% 
+    separate(
+      col = bacteria, 
+      into = c("genus", "species"), 
+      sep = " ",
+    )
+print(df_genus)
+
+#Filter for effectiveness
+df_pass <- df_genus %>% filter(mic <= 0.01)
+
+
+#(2) making a visualization
+ggplot(df_genus, aes(fct_reorder(species, genus), y = mic)) + 
+  geom_point(aes(color = genus)) + 
+  geom_point(data = df_pass, aes(color = genus), shape = 3, size = 3) +
+  coord_flip() + 
+  scale_y_log10() +
+  facet_wrap(~ antibiotic)
+
+
+#filter for the types of genus with more than one bacteria species
+df_genus %>% 
+  filter(genus %in% c("Streptococcus", "Staphylococcus", "Salmonella")) %>% 
+  ggplot(aes(x = mic, y = fct_reorder(species, genus))) + 
+  geom_point(aes(color = antibiotic)) + 
+  facet_wrap(~ genus)
+
+
 ```
 
 **Observations**:
 
-- Document your observations here!
+- Pretty colors! 
+- There are only three genus with more than on species in this dataplot: Streptococcus, Staphyloccus, and Salmonella.
+- When remove the log scale axis, I can see that none of the outliers are from the same genus.
+- It does appear that bacteria from the same genus have mic values that are not super far away from each other. I decided to make the second plot to isolate bacteia from the same genus, and confirm that they have roughly simlar effectiveness with the same antibiotic.
+
 
 # References
 <!-- -------------------------------------------------- -->

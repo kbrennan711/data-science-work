@@ -1,7 +1,7 @@
 ---
 title: "COVID-19"
-author: "(Your name here)"
-date: 2020-
+author: "Kelly Brennan"
+date: 2020-08-01
 output:
   github_document:
     toc: true
@@ -83,7 +83,11 @@ __q1__ Load Table `B01003` into the following tibble. Make sure the column names
 
 ```{r q1-task}
 ## TASK: Load the census bureau data with the following tibble name.
-df_pop <- NA
+filename <- "./data/ACSDT5Y2018.B01003_data_with_overlays_2020-08-01T114522.csv"
+
+df_pop <- read_csv(filename, col_names = TRUE, skip = 1) %>%
+  glimpse()
+
 ```
 
 *Note*: You can find information on 1-year, 3-year, and 5-year estimates [here](https://www.census.gov/programs-surveys/acs/guidance/estimates.html). The punchline is that 5-year estimates are more reliable but less current.
@@ -99,7 +103,7 @@ __q2__ Visit the NYT [GitHub](https://github.com/nytimes/covid-19-data) repo and
 
 ```{r q2-task}
 ## TASK: Find the URL for the NYT covid-19 county-level data
-url_counties <- NA_character_
+url_counties <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"
 ```
 
 Once you have the url, the following code will download a local copy of the data, then load the data into R.
@@ -126,8 +130,6 @@ You can now re-run the chunk above (or the entire notebook) to pull the most rec
 # Join the Data
 <!-- -------------------------------------------------- -->
 
-
-
 To get a sense of our task, let's take a glimpse at our two data sources.
 
 ```{r glimpse}
@@ -142,7 +144,10 @@ __q3__ Process the `id` column of `df_pop` to create a `fips` column.
 
 ```{r q3-task}
 ## TASK: Create a `fips` column by extracting the county code
-df_q3 <- NA
+df_q3 <- 
+  separate(df_pop, id, into = c("id", "fips"), sep = -5)
+
+head(df_q3)
 ```
 
 Use the following test to check your answer.
@@ -164,7 +169,12 @@ __q4__ Join `df_covid` with `df_q3` by the `fips` column. Use the proper type of
 
 ```{r q4-task}
 ## TASK: Join df_covid and df_q3 by fips.
-df_q4 <- NA
+df_q4 <- df_covid %>%
+  left_join(
+    df_q3,
+    by = "fips"
+  )
+
 ```
 
 For convenience, I down-select some columns and produce more convenient column
@@ -198,7 +208,10 @@ __q5__ Use the `population` estimates in `df_data` to normalize `cases` and `dea
 ```{r q5-task}
 ## TASK: Normalize cases and deaths
 df_normalized <-
-  df_data
+  df_data %>% 
+    mutate(cases_perk = (cases / population) * 100000) %>% 
+    mutate(deaths_perk = (deaths / population) * 100000) %>% 
+    glimpse()
 ```
 
 You may use the following test to check your work.
@@ -235,6 +248,14 @@ __q6__ Compute the mean and standard deviation for `cases_perk` and `deaths_perk
 
 ```{r q6-task}
 ## TASK: Compute mean and sd for cases_perk and deaths_perk
+
+mean(df_normalized$cases_perk, na.rm = TRUE)
+sd(df_normalized$cases_perk, na.rm = TRUE)
+
+mean(df_normalized$deaths_perk, na.rm = TRUE)
+sd(df_normalized$deaths_perk, na.rm = TRUE)
+
+
 ```
 
 __q7__ Find the top 10 counties in terms of `cases_perk`, and the top 10 in terms of `deaths_perk`. Report the population of each county along with the per-100,000 counts. Compare the counts against the mean values you found in q6. Note any observations. Does New York City show up in the top? Why or why not?

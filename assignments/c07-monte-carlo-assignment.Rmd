@@ -1,7 +1,7 @@
 ---
 title: "Estimating Pi With a Shotgun"
-author: "(Your name here)"
-date: 2020-
+author: "Kelly Brennan"
+date: 2020-08-04
 output:
   github_document:
     toc: true
@@ -108,15 +108,24 @@ __q1__ Pick a sample size $n$ and generate $n$ points *uniform randomly* in the 
 
 ```{r q1-task}
 ## TASK: Choose a sample size and generate samples
-n <- NA_real_ # Choose a sample size
-df_q1 <- NA # Generate the data
+n <- 100000 # Choose a sample size
+df_q1 <- 
+  tibble(
+    x = runif(n, min = 0, max = 1),
+    y = runif(n, min = 0, max = 1)
+  ) %>% 
+  mutate(in_circle = (y <= sqrt(1 - x^2))) %>% 
+  summarize(count = n(), fr = mean(in_circle), sd = sd(in_circle), pi_est = mean(in_circle)*4) #Create a summary condition.
+
+print(df_q1)
+
 ```
 
 __q2__ Using your data in `df_q1`, estimate $\pi$.
 
 ```{r q2-task}
 ## TASK: Estimate pi using your data from q1
-pi_est <- NA_real_
+pi_est <- df_q1$pi_est
 pi_est
 ```
 
@@ -128,14 +137,18 @@ You now have an estimate of $\pi$, but how trustworthy is that estimate? In `e-s
 __q3__ Using a CLT approximation, produce a confidence interval for your estimate of $\pi$. Does your interval include the true value of $\pi$? Was your chosen sample size sufficiently large so as to produce a trustworthy answer?
 
 ```{r q3-task}
+lo <- pi_est - qnorm(1 - (1 - 0.95) / 2 ) * df_q1$sd / sqrt(df_q1$count)
+hi <- pi_est + qnorm(1 - (1 - 0.95) / 2 ) * df_q1$sd / sqrt(df_q1$count)
+
+lo
+hi
 ```
 
 **Observations**:
 
-- Does your interval include the true value of $\pi$?
-- Was your sample size $n$ large enough?
-- Yes, my interval includes $\pi$.
-- My CI is quite narrow, so $n$ is large enough.
+- Does your interval include the true value of $\pi$? Yes, the interval includes the true value of $\pi$; however, it does not always include the true value of $\pi$. 
+
+- Was your sample size $n$ large enough? I think the sample size is large enough because the Confidence Interval is quite narrow. 
 
 # References
 <!-- -------------------------------------------------- -->
